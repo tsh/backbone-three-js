@@ -1,13 +1,16 @@
 var renderer,
 	scene,
-	camera;
+	camera,
+	cube,
+	WIDTH = 800,
+	HEIGHT = 600;
 	
 function init(){
 	scene = new THREE.Scene();
 	
 	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(0x000000, 1.0);
-	renderer.setSize(window.innerWidth, window.innerHeight); 
+	renderer.setSize(WIDTH, HEIGHT); 
 	renderer.shadowMapEnabled = true;
 	
 	// elements of the scene
@@ -26,11 +29,11 @@ function init(){
 	// Cube
 	var cubeGeometry = new THREE.BoxGeometry(6, 4, 6);
 	var cubeMaterial = new THREE.MeshLambertMaterial({color: 'red'});
-	var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+	cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 	cube.castShadow = true;
 	scene.add(cube);
 	
-	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+	camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 1000);
 	camera.position.x = 15;
 	camera.position.y = 16;
 	camera.position.z = 13;
@@ -43,7 +46,8 @@ function init(){
 	spotLight.castShadow = true;
 	scene.add(spotLight);
 	
-	document.body.appendChild(renderer.domElement);
+	
+	$("#canvas-container").append(renderer.domElement);
 	
 	render();
 }
@@ -57,10 +61,33 @@ function render(){
 };
 
 function handleResize() {
-	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = WIDTH / HEIGHT;
 	camera.updateProjectionMatrix();
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setSize(WIDTH, HEIGHT);
 }
 
 window.onload=init;
 window.addEventListener('resize', handleResize, false);
+
+ControlView = Backbone.View.extend({
+	el: "#control-holder",
+	events: {
+		"change input": "changeOpacity" 
+	},
+	
+	initialize: function(){
+		this.render();
+	},
+	
+	render: function(){
+		$(this.el).append('<input type="number" id="cube-red" placeholder="RED" min=0 max=1 step=0.1><input type="number" id="cube-green" placeholder="GREEN" min=0 max=1 step=0.1><input type="number" id="cube-blue" placeholder="BLUE" min=0 max=1 step=0.1>')
+	},
+	
+	changeOpacity: function(e){
+		cube.material.color.r = $("#cube-red").val();
+		cube.material.color.g = $("#cube-green").val();
+		cube.material.color.b = $("#cube-blue").val();
+	}
+});
+
+var controlView = new ControlView();
